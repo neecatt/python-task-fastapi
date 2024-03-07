@@ -1,5 +1,4 @@
 from typing import List
-import datetime
 from peewee import *
 import os
 from dotenv import load_dotenv

@@ -1,12 +1,9 @@
 from datetime import timedelta
-from typing import Optional
-from weakref import ref
-from fastapi import Depends
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
-from src.utils.exceptions import credentials_exception, user_already_registered_exception
+from src.utils.exceptions import credentials_exception
 from src.utils.constants import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from src.users.models import ModelUser
 
@@ -47,7 +44,7 @@ def create_refresh_token(data: dict):
     return refresh_token
 
 
-def verify_token(token: str):
+def verify_access_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")

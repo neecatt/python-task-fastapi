@@ -16,3 +16,9 @@ incorrect_login_exception = HTTPException(
     detail="Incorrect username or password",
     headers={"WWW-Authenticate": "Bearer"},
 )
+
+refresh_token_expired_exception = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Refresh token expired or invalid",
+    headers={"WWW-Authenticate": "Bearer"},
+)

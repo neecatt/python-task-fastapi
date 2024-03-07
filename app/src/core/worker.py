@@ -20,8 +20,7 @@ def create_task(task_type):
 
 @celery.task(name="get_ip_info")
 def get_ip_info(ip):
-    # ipdata.api_key = os.getenv('IPDATA_API_KEY')
-    ipdata.api_key = 'f7043436e6292e30d5b36a9066c942907df759c05bfa708502df3b23'
+    ipdata.api_key = os.getenv('IPDATA_API_KEY')
     response = ipdata.lookup(ip)
     response_json = json.dumps(response)
     return response_json

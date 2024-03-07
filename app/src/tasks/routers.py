@@ -9,7 +9,7 @@ router_task = APIRouter(
     tags=["tasks"]
 )
 
-@router_task.get("", summary="Get IP info", status_code=201)
+@router_task.get("", summary="Get Task ID regarding to IP info task", status_code=201)
 async def get_ip_info_task(ip: str):
     task = get_ip_info.delay(ip)
     print(task)

@@ -1,9 +1,9 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from .utils import create_access_token, create_refresh_token,  get_password_hash, verify_password, verify_access_token
+from .utils import create_access_token, create_refresh_token,  get_password_hash, verify_password, verify_access_token, verify_refresh_token
 from ..users.models import ModelUser
 from ..users.responses import UserResponse
-from ..utils.exceptions import user_already_registered_exception, credentials_exception, incorrect_login_exception
+from ..utils.exceptions import user_already_registered_exception, credentials_exception, incorrect_login_exception, refresh_token_expired_exception
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
 
@@ -43,3 +43,16 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     user.refresh_token = refresh_token
     user.save()
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+async def refresh_access_token(token: str = Depends(oauth2_scheme)):
+    user = verify_access_token(token)
+    if not user:
+        raise credentials_exception
+    refresh_token = user.refresh_token
+    print("s")
+    if not verify_refresh_token(refresh_token) or not refresh_token:
+        raise refresh_token_expired_exception
+    access_token = create_access_token(
+        data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}

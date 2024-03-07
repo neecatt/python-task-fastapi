@@ -6,7 +6,6 @@ from pydantic import BaseModel
 class UserResponse(BaseModel):
     id: int
     username: str
-    refresh_token: Optional[str]
     created_at: Optional[datetime.datetime]
 
     class Config:

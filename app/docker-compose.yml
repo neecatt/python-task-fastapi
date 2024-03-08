@@ -1,0 +1,85 @@
+version: '3.9'
+
+services:
+  app:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - phpmyadmin
+      - rabbitmq
+      - celeryworker
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    networks:
+      - shared_network
+
+  mysql:
+    hostname: mysql
+    image: mysql:latest
+    environment:
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: python_task
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - shared_network
+
+  phpmyadmin:
+    platform: linux/x86_64
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: mysql
+      PMA_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - shared_network
+
+  rabbitmq:
+    container_name: rabbit
+    hostname: rabbit
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - 'rabbitmq_data:/data'
+    networks:
+          - shared_network
+
+
+  celeryworker:
+    build:
+      context: ./src/core
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    stdin_open: true
+    networks:
+      - shared_network
+    env_file:
+      - .env
+
+volumes:
+  mysql_data:
+  rabbitmq_data:
+
+
+networks:
+  shared_network:
+    driver: bridge

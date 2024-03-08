@@ -17,7 +17,8 @@ user_dependency = Depends(get_user_by_token)
 # Register a user
 @router_auth.post("/signup", summary="Create a user", status_code=status.HTTP_201_CREATED)
 async def create_user(request: SchemaUser):
-    return await add_user_db(request.username, request.password)
+    user =  await add_user_db(request.username, request.password)
+    return {"message": "User created successfully", "user": user}
 
 
 # Login a user

@@ -1,10 +1,12 @@
 import time
 from celery import Celery
+from fastapi.exceptions import RequestValidationError
 import pymysql
 from dotenv import load_dotenv
 import os
 import ipdata
 import json
+import re
 pymysql.install_as_MySQLdb()
 load_dotenv()
 
@@ -20,6 +22,7 @@ def create_task(task_type):
 
 @celery.task(name="get_ip_info")
 def get_ip_info(ip):
+    
     ipdata.api_key = os.getenv('IPDATA_API_KEY')
     response = ipdata.lookup(ip)
     response_json = json.dumps(response)

@@ -12,7 +12,7 @@ class ConfigDatabase:
         user=os.getenv('DATABASE_USER'),
         password=os.getenv('DATABASE_PASSWORD'),
         host=os.getenv('DATABASE_HOST'),
-        port=int(os.getenv('DATABASE_PORT'))
+        port = int(os.getenv('DATABASE_PORT'))
     )
 
     def __init__(self, models: List[str]):

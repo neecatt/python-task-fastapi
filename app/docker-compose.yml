@@ -1,33 +1,85 @@
-version: "3.9"
+version: '3.9'
 
 services:
-  main_app:
+  app:
+    container_name: backend
     build:
       context: .
-    command: uvicorn main:app --host 0.0.0.0 --reload
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     depends_on:
+      - mysql
+      - phpmyadmin
       - rabbitmq
+      - celeryworker
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    networks:
+      - shared_network
+
+  mysql:
+    hostname: mysql
+    image: mysql:latest
+    environment:
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: python_task
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - shared_network
+
+  phpmyadmin:
+    platform: linux/x86_64
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: mysql
+      PMA_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - shared_network
 
   rabbitmq:
-    restart: always
-    image: rabbitmq:3.8-management-alpine
+    container_name: rabbit
+    hostname: rabbit
+    image: "rabbitmq:3-management"
     ports:
-      - 15672:15672
-      - 5672:5672
-      - 25672:25672
-    environment:
-      RABBITMQ_DEFAULT_VHOST: vhost
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
- 
-  celery_worker:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - 'rabbitmq_data:/data'
+    networks:
+          - shared_network
+
+
+  celeryworker:
     build:
-      context: .
-    command: celery -A celeryconfig worker --loglevel=info
+      context: ./src/core
+      dockerfile: Dockerfile
     depends_on:
       - rabbitmq
-      - main_app
-
+    links:
+      - rabbitmq
     stdin_open: true
+    networks:
+      - shared_network
+    env_file:
+      - .env
+
+volumes:
+  mysql_data:
+  rabbitmq_data:
+
+
+networks:
+  shared_network:
+    driver: bridge

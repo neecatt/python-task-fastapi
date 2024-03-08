@@ -22,3 +22,8 @@ refresh_token_expired_exception = HTTPException(
     detail="Refresh token expired or invalid",
     headers={"WWW-Authenticate": "Bearer"},
 )
+
+invalid_ip_exception = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Invalid IP address",
+)

@@ -35,7 +35,6 @@ services:
       - shared_network
 
   phpmyadmin:
-    platform: linux/x86_64
     image: phpmyadmin/phpmyadmin:latest
     environment:
       PMA_HOST: mysql
